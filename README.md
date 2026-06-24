@@ -188,6 +188,20 @@ Një kandidat mund të aprovohet ose refuzohet vetëm kur është `ne_shqyrtim`.
 Ndryshimi i statusit dhe regjistrimi te `moderimet_kandidateve` kryhen në të
 njëjtin transaksion.
 
+## Editimi editorial i kandidatit
+
+Endpoint-i:
+
+```text
+PUT /api/admin/kandidatet/:id
+```
+
+Lejohet për `gazetar`, `super_gazetar`, `moderator` dhe `super_admin`.
+Pranon vetëm `emri`, `bio` dhe `url_foto`. Duhet të dërgohet të paktën një
+fushë; `url_foto: null` heq fotografinë.
+
+Fusha si `statusi`, votat ose hash-et refuzohen nga validimi global.
+
 ## Mbështetja publike e kandidatit
 
 Endpoint-i:
@@ -216,33 +230,33 @@ seksion.
 
 Skedari `.env.example` përmban variablat e pritshme:
 
-| Variabla | Qëllimi |
-| --- | --- |
-| `NODE_ENV` | Ambienti i ekzekutimit |
-| `PORT` | Porta e API-së |
-| `DATABASE_URL` | Lidhja me PostgreSQL |
-| `CLERK_SECRET_KEY` | Çelësi privat i Clerk |
-| `CLERK_PUBLISHABLE_KEY` | Çelësi publik i Clerk |
+| Variabla                   | Qëllimi                                         |
+| -------------------------- | ----------------------------------------------- |
+| `NODE_ENV`                 | Ambienti i ekzekutimit                          |
+| `PORT`                     | Porta e API-së                                  |
+| `DATABASE_URL`             | Lidhja me PostgreSQL                            |
+| `CLERK_SECRET_KEY`         | Çelësi privat i Clerk                           |
+| `CLERK_PUBLISHABLE_KEY`    | Çelësi publik i Clerk                           |
 | `CLERK_AUTHORIZED_PARTIES` | Origjinat frontend që lejohen të dërgojnë token |
-| `TURNSTILE_SECRET_KEY` | Çelësi i Cloudflare Turnstile |
-| `HASH_SECRET` | Sekreti për hash-et anonime |
+| `TURNSTILE_SECRET_KEY`     | Çelësi i Cloudflare Turnstile                   |
+| `HASH_SECRET`              | Sekreti për hash-et anonime                     |
 
 Mos vendos sekrete reale në `.env.example` dhe mos bëj commit skedarin `.env`.
 
 ## Komandat
 
-| Komanda | Përshkrimi |
-| --- | --- |
-| `npm run start:dev` | Nis serverin me rindërtim automatik |
-| `npm run build` | Kompilon aplikacionin |
-| `npm run start:prod` | Nis versionin e kompiluar |
-| `npm run lint` | Kontrollon dhe formaton kodin me ESLint |
-| `npm test` | Ekzekuton testet |
-| `npm run test:watch` | Ekzekuton testet në watch mode |
-| `npm run test:cov` | Gjeneron raportin e mbulimit |
-| `npm run prisma:generate` | Gjeneron Prisma Client |
-| `npm run prisma:migrate:dev` | Krijon ose aplikon migrime lokale |
-| `npm run prisma:seed` | Ekzekuton seed-in |
+| Komanda                      | Përshkrimi                              |
+| ---------------------------- | --------------------------------------- |
+| `npm run start:dev`          | Nis serverin me rindërtim automatik     |
+| `npm run build`              | Kompilon aplikacionin                   |
+| `npm run start:prod`         | Nis versionin e kompiluar               |
+| `npm run lint`               | Kontrollon dhe formaton kodin me ESLint |
+| `npm test`                   | Ekzekuton testet                        |
+| `npm run test:watch`         | Ekzekuton testet në watch mode          |
+| `npm run test:cov`           | Gjeneron raportin e mbulimit            |
+| `npm run prisma:generate`    | Gjeneron Prisma Client                  |
+| `npm run prisma:migrate:dev` | Krijon ose aplikon migrime lokale       |
+| `npm run prisma:seed`        | Ekzekuton seed-in                       |
 
 ## Përdorimi me Docker
 

@@ -11,6 +11,8 @@ import {
 import { AntiSpamService } from '../anti-spam/anti-spam.service';
 import { CaptchaService } from '../anti-spam/captcha.service';
 import { PrismaService } from '../prisma/prisma.service';
+import { KandidatEditorialResponse } from './dto/kandidat-editorial.response';
+import { PerditesoKandidatDto } from './dto/perditeso-kandidat.dto';
 import { PropozoKandidatDto } from './dto/propozo-kandidat.dto';
 import { PropozimKandidatiResponse } from './dto/propozim-kandidati.response';
 
@@ -93,8 +95,61 @@ export class KandidatetService {
     );
   }
 
-  private ensureContentIsAllowed(emri: string, bio: string): void {
-    const words = `${emri} ${bio}`
+  async updateEditorialContent(
+    id: number,
+    dto: PerditesoKandidatDto,
+  ): Promise<KandidatEditorialResponse> {
+    if (
+      dto.emri === undefined &&
+      dto.bio === undefined &&
+      dto.url_foto === undefined
+    ) {
+      throw new BadRequestException(
+        'Duhet të dërgohet të paktën një fushë për përditësim.',
+      );
+    }
+
+    this.ensureContentIsAllowed(dto.emri, dto.bio);
+
+    const updateResult = await this.prisma.kandidat.updateMany({
+      where: {
+        id,
+        deleted_at: null,
+      },
+      data: {
+        ...(dto.emri !== undefined && { emri: dto.emri.trim() }),
+        ...(dto.bio !== undefined && { bio: dto.bio.trim() }),
+        ...(dto.url_foto !== undefined && {
+          url_foto: dto.url_foto?.trim() || null,
+        }),
+      },
+    });
+
+    if (updateResult.count === 0) {
+      throw new NotFoundException('Kandidati nuk ekziston.');
+    }
+
+    const kandidati = await this.prisma.kandidat.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        emri: true,
+        bio: true,
+        url_foto: true,
+        statusi: true,
+        updated_at: true,
+      },
+    });
+
+    if (!kandidati) {
+      throw new NotFoundException('Kandidati nuk ekziston.');
+    }
+
+    return kandidati;
+  }
+
+  private ensureContentIsAllowed(emri?: string, bio?: string): void {
+    const words = `${emri ?? ''} ${bio ?? ''}`
       .toLocaleLowerCase('sq')
       .normalize('NFKD')
       .replace(/\p{Diacritic}/gu, '')

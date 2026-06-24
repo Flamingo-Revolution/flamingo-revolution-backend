@@ -9,6 +9,8 @@ describe('KandidatetService', () => {
   const findFirst = jest.fn();
   const createCandidate = jest.fn();
   const createAntiSpamEvent = jest.fn();
+  const updateMany = jest.fn();
+  const findUnique = jest.fn();
   const transaction = {
     seksioniKeshillit: {
       findFirst,
@@ -26,6 +28,10 @@ describe('KandidatetService', () => {
   );
   const prisma = {
     $transaction: runTransaction,
+    kandidat: {
+      updateMany,
+      findUnique,
+    },
   } as unknown as PrismaService;
   const verifyTurnstile = jest.fn();
   const captcha = {
@@ -97,5 +103,53 @@ describe('KandidatetService', () => {
     ).rejects.toBeInstanceOf(NotFoundException);
 
     expect(createCandidate).not.toHaveBeenCalled();
+  });
+
+  it('përditëson vetëm përmbajtjen editoriale', async () => {
+    updateMany.mockResolvedValue({ count: 1 });
+    findUnique.mockResolvedValue({
+      id: 15,
+      emri: 'Emri i ri',
+      bio: 'Biografia e re e kandidatit.',
+      url_foto: null,
+      statusi: StatusiKandidatit.i_aprovuar,
+      updated_at: new Date(),
+    });
+
+    await service.updateEditorialContent(15, {
+      emri: '  Emri i ri  ',
+      bio: '  Biografia e re e kandidatit.  ',
+      url_foto: null,
+    });
+
+    expect(updateMany).toHaveBeenCalledWith({
+      where: {
+        id: 15,
+        deleted_at: null,
+      },
+      data: {
+        emri: 'Emri i ri',
+        bio: 'Biografia e re e kandidatit.',
+        url_foto: null,
+      },
+    });
+  });
+
+  it('refuzon body bosh për përditësim', async () => {
+    await expect(service.updateEditorialContent(15, {})).rejects.toBeInstanceOf(
+      BadRequestException,
+    );
+
+    expect(updateMany).not.toHaveBeenCalled();
+  });
+
+  it('kthen 404 kur kandidati është fshirë ose nuk ekziston', async () => {
+    updateMany.mockResolvedValue({ count: 0 });
+
+    await expect(
+      service.updateEditorialContent(999, { emri: 'Emri i ri' }),
+    ).rejects.toBeInstanceOf(NotFoundException);
+
+    expect(findUnique).not.toHaveBeenCalled();
   });
 });
