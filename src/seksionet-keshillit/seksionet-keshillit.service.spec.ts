@@ -3,9 +3,13 @@ import { SeksionetKeshillitService } from './seksionet-keshillit.service';
 
 describe('SeksionetKeshillitService', () => {
   const findMany = jest.fn();
+  const updateMany = jest.fn();
+  const findUnique = jest.fn();
   const prisma = {
     seksioniKeshillit: {
       findMany,
+      updateMany,
+      findUnique,
     },
   } as unknown as PrismaService;
   const service = new SeksionetKeshillitService(prisma);
@@ -109,5 +113,55 @@ describe('SeksionetKeshillitService', () => {
         orderBy: { renditja: 'asc' },
       }),
     );
+  });
+
+  it('përditëson vetëm përmbajtjen editoriale të seksionit', async () => {
+    updateMany.mockResolvedValue({ count: 1 });
+    findUnique.mockResolvedValue({
+      id: 1,
+      key: 'juriste_kushtetutare',
+      titulli: 'Titulli i ri',
+      pershkrimi: 'Përshkrimi i ri i seksionit.',
+      numri_vendeve: 2,
+      renditja: 1,
+      url_imazhi: null,
+      updated_at: new Date(),
+    });
+
+    await service.updateEditorialContent(1, {
+      titulli: '  Titulli i ri  ',
+      pershkrimi: '  Përshkrimi i ri i seksionit.  ',
+      url_imazhi: null,
+    });
+
+    expect(updateMany).toHaveBeenCalledWith({
+      where: {
+        id: 1,
+        deleted_at: null,
+      },
+      data: {
+        titulli: 'Titulli i ri',
+        pershkrimi: 'Përshkrimi i ri i seksionit.',
+        url_imazhi: null,
+      },
+    });
+  });
+
+  it('refuzon body bosh për përditësim', async () => {
+    await expect(service.updateEditorialContent(1, {})).rejects.toThrow(
+      'Duhet të dërgohet të paktën një fushë për përditësim.',
+    );
+
+    expect(updateMany).not.toHaveBeenCalled();
+  });
+
+  it('kthen 404 kur seksioni është fshirë ose nuk ekziston', async () => {
+    updateMany.mockResolvedValue({ count: 0 });
+
+    await expect(
+      service.updateEditorialContent(999, { titulli: 'Titulli i ri' }),
+    ).rejects.toThrow('Seksioni nuk ekziston.');
+
+    expect(findUnique).not.toHaveBeenCalled();
   });
 });

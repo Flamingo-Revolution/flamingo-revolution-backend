@@ -1,6 +1,12 @@
-import { Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { StatusiKandidatit } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
+import { PerditesoSeksionKeshilliDto } from './dto/perditeso-seksion-keshilli.dto';
+import { SeksionKeshilliEditorialResponse } from './dto/seksion-keshilli-editorial.response';
 import { SeksionKeshilliPublikResponse } from './dto/seksion-keshilli-publik.response';
 
 @Injectable()
@@ -77,6 +83,61 @@ export class SeksionetKeshillitService {
         }),
       };
     });
+  }
+
+  async updateEditorialContent(
+    id: number,
+    dto: PerditesoSeksionKeshilliDto,
+  ): Promise<SeksionKeshilliEditorialResponse> {
+    if (
+      dto.titulli === undefined &&
+      dto.pershkrimi === undefined &&
+      dto.url_imazhi === undefined
+    ) {
+      throw new BadRequestException(
+        'Duhet të dërgohet të paktën një fushë për përditësim.',
+      );
+    }
+
+    const updateResult = await this.prisma.seksioniKeshillit.updateMany({
+      where: {
+        id,
+        deleted_at: null,
+      },
+      data: {
+        ...(dto.titulli !== undefined && { titulli: dto.titulli.trim() }),
+        ...(dto.pershkrimi !== undefined && {
+          pershkrimi: dto.pershkrimi.trim(),
+        }),
+        ...(dto.url_imazhi !== undefined && {
+          url_imazhi: dto.url_imazhi?.trim() || null,
+        }),
+      },
+    });
+
+    if (updateResult.count === 0) {
+      throw new NotFoundException('Seksioni nuk ekziston.');
+    }
+
+    const seksioni = await this.prisma.seksioniKeshillit.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        key: true,
+        titulli: true,
+        pershkrimi: true,
+        numri_vendeve: true,
+        renditja: true,
+        url_imazhi: true,
+        updated_at: true,
+      },
+    });
+
+    if (!seksioni) {
+      throw new NotFoundException('Seksioni nuk ekziston.');
+    }
+
+    return seksioni;
   }
 
   private calculatePercentage(votat: number, votatTotale: number): number {

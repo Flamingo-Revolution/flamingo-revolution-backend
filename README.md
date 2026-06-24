@@ -202,6 +202,21 @@ fushë; `url_foto: null` heq fotografinë.
 
 Fusha si `statusi`, votat ose hash-et refuzohen nga validimi global.
 
+## Editimi editorial i seksionit
+
+Endpoint-i:
+
+```text
+PUT /api/admin/seksionet-keshillit/:id
+```
+
+Lejohet për `gazetar`, `super_gazetar`, `moderator` dhe `super_admin`.
+Pranon vetëm `titulli`, `pershkrimi` dhe `url_imazhi`. Duhet të dërgohet të
+paktën një fushë; `url_imazhi: null` heq imazhin.
+
+Fushat strukturore `key`, `numri_vendeve`, `renditja` dhe `deleted_at`
+refuzohen nga validimi global.
+
 ## Mbështetja publike e kandidatit
 
 Endpoint-i:
