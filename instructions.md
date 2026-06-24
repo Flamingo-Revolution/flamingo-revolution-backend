@@ -116,7 +116,6 @@ Tabela `users` përmban:
 - `id`
 - `clerk_user_id`
 - `emri_nofka`
-- `email`
 - `roli`
 - `statusi`
 - `created_at`

@@ -55,6 +55,27 @@ async function main(): Promise<void> {
       create: seksioni,
     });
   }
+
+  const clerkUserId = process.env.INITIAL_SUPER_ADMIN_CLERK_USER_ID;
+
+  if (clerkUserId) {
+    const emriNofka = process.env.INITIAL_SUPER_ADMIN_NAME || 'admin';
+
+    await prisma.user.upsert({
+      where: { clerk_user_id: clerkUserId },
+      update: {
+        emri_nofka: emriNofka,
+        roli: 'super_admin',
+        statusi: 'aktiv',
+        deleted_at: null,
+      },
+      create: {
+        clerk_user_id: clerkUserId,
+        emri_nofka: emriNofka,
+        roli: 'super_admin',
+      },
+    });
+  }
 }
 
 main()

@@ -90,6 +90,35 @@ Swagger do të jetë në:
 http://localhost:3000/api/docs
 ```
 
+## Autentikimi i stafit me Clerk
+
+Frontend-i merr session token-in nga Clerk dhe e dërgon në çdo endpoint
+administrativ:
+
+```http
+Authorization: Bearer <session-token>
+```
+
+Backend-i:
+
+1. verifikon token-in me Clerk;
+2. merr `clerk_user_id` nga claim-i `sub`;
+3. gjen përdoruesin aktiv në tabelën lokale `users`;
+4. kontrollon rolin lokal me `RolesGuard`.
+
+Endpoint-i i parë për verifikim është:
+
+```text
+GET /api/admin/profili
+```
+
+`CLERK_AUTHORIZED_PARTIES` pranon një ose disa URL frontend-i të ndara me
+presje, për shembull:
+
+```env
+CLERK_AUTHORIZED_PARTIES=http://localhost:5173,https://app.example.com
+```
+
 ## Konfigurimi i ambientit
 
 Skedari `.env.example` përmban variablat e pritshme:
@@ -101,6 +130,7 @@ Skedari `.env.example` përmban variablat e pritshme:
 | `DATABASE_URL` | Lidhja me PostgreSQL |
 | `CLERK_SECRET_KEY` | Çelësi privat i Clerk |
 | `CLERK_PUBLISHABLE_KEY` | Çelësi publik i Clerk |
+| `CLERK_AUTHORIZED_PARTIES` | Origjinat frontend që lejohen të dërgojnë token |
 | `TURNSTILE_SECRET_KEY` | Çelësi i Cloudflare Turnstile |
 | `HASH_SECRET` | Sekreti për hash-et anonime |
 
@@ -192,7 +222,7 @@ Skema Prisma përmban:
 
 Tabela `users` ruan përdoruesit e stafit. Rolet editoriale janë `gazetar` dhe
 `super_gazetar`. Autentikimi kryhet nga Clerk, prandaj nuk ruhet
-`password_hash`.
+`password_hash` ose email.
 
 Fushat kohore përdorin emërtimet `created_at`, `updated_at` dhe, kur nevojitet
 fshirja logjike, `deleted_at`.
