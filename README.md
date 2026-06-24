@@ -119,6 +119,22 @@ presje, për shembull:
 CLERK_AUTHORIZED_PARTIES=http://localhost:5173,https://app.example.com
 ```
 
+## Endpoint-i publik i seksioneve
+
+Endpoint-i:
+
+```text
+GET /api/publike/seksionet-keshillit/kandidatet
+```
+
+Kthen seksionet sipas renditjes dhe vetëm kandidatët me status `i_aprovuar`
+ose `i_zgjedhur`. Për çdo kandidat llogarit:
+
+- `numri_votave`;
+- `perqindja_votave` brenda seksionit.
+
+Përqindja nuk ruhet në databazë. Kur seksioni nuk ka vota, ajo kthehet `0`.
+
 ## Konfigurimi i ambientit
 
 Skedari `.env.example` përmban variablat e pritshme:
@@ -255,7 +271,7 @@ fillestar dhe seed-i i seksioneve janë implementuar. Ende nuk janë implementua
 
 - verifikimi Clerk;
 - verifikimi Turnstile;
-- endpoint-et;
+- endpoint-et e tjera publike dhe administrative;
 - logjika e votimit dhe moderimit;
 - testet funksionale.
 
