@@ -135,6 +135,37 @@ ose `i_zgjedhur`. Për çdo kandidat llogarit:
 
 Përqindja nuk ruhet në databazë. Kur seksioni nuk ka vota, ajo kthehet `0`.
 
+## Propozimi publik i kandidatit
+
+Endpoint-i:
+
+```text
+POST /api/publike/kandidatet
+```
+
+Kërkon header-in:
+
+```http
+x-device-fingerprint: <fingerprint-i i krijuar nga frontend-i>
+```
+
+Body:
+
+```json
+{
+  "seksion_id": 1,
+  "emri": "Emri i kandidatit",
+  "bio": "Përshkrimi dhe përvoja e kandidatit.",
+  "url_foto": "https://example.com/kandidati.jpg",
+  "captcha_token": "token-i i Turnstile",
+  "website": ""
+}
+```
+
+`website` është honeypot dhe duhet të mbetet bosh. Backend-i nuk ruan IP-në ose
+fingerprint-in e papërpunuar. Ruhet vetëm hash-i i tyre. Lejohen maksimumi tri
+propozime në 24 orë për të njëjtën IP ose pajisje.
+
 ## Konfigurimi i ambientit
 
 Skedari `.env.example` përmban variablat e pritshme:

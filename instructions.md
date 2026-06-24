@@ -320,6 +320,7 @@ Duhet të:
 
 Hyrja:
 
+- header `x-device-fingerprint`
 - `seksion_id`
 - `emri`
 - `bio`
@@ -338,6 +339,8 @@ Rrjedha:
 7. Ruaj kandidatin me status `ne_shqyrtim`.
 8. Ruaj ngjarjen anti-spam në të njëjtin transaksion.
 9. Kthe një mesazh suksesi pa të dhëna të brendshme.
+
+Fingerprint-i i papërpunuar përdoret vetëm gjatë kërkesës dhe nuk ruhet.
 
 ### Mbështet kandidat
 
