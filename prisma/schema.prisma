@@ -1,0 +1,130 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum StatusiKandidatit {
+  ne_shqyrtim
+  i_aprovuar
+  i_refuzuar
+  i_zgjedhur
+}
+
+enum VeprimiModerimit {
+  aprovim
+  refuzim
+  zgjedhje
+}
+
+enum RoliUserit {
+  super_admin
+  gazetar
+  super_gazetar
+  moderator
+  tech_admin
+}
+
+enum StatusiUserit {
+  aktiv
+  i_caktivizuar
+}
+
+enum LlojiVeprimitAntiSpam {
+  propozim_kandidati
+  votim_kandidati
+}
+
+model SeksioniKeshillit {
+  id            Int        @id @default(autoincrement())
+  key           String     @unique
+  titulli       String
+  pershkrimi    String     @db.Text
+  numri_vendeve Int
+  renditja      Int        @unique
+  url_imazhi    String?
+  created_at    DateTime   @default(now())
+  updated_at    DateTime   @updatedAt
+  deleted_at    DateTime?
+  kandidatet    Kandidat[]
+
+  @@index([deleted_at])
+  @@map("seksionet_keshillit")
+}
+
+model Kandidat {
+  id         Int                @id @default(autoincrement())
+  seksion_id Int
+  emri       String
+  bio        String             @db.Text
+  url_foto   String?
+  statusi    StatusiKandidatit  @default(ne_shqyrtim)
+  created_at DateTime           @default(now())
+  updated_at DateTime           @updatedAt
+  deleted_at DateTime?
+  seksioni   SeksioniKeshillit  @relation(fields: [seksion_id], references: [id], onDelete: Restrict)
+  votat      VoteKandidati[]
+  moderimet  ModerimKandidati[]
+
+  @@index([seksion_id, statusi, deleted_at])
+  @@map("kandidatet")
+}
+
+model VoteKandidati {
+  id               Int      @id @default(autoincrement())
+  kandidat_id      Int
+  fingerprint_hash String
+  ip_hash          String
+  created_at       DateTime @default(now())
+  kandidati        Kandidat @relation(fields: [kandidat_id], references: [id], onDelete: Restrict)
+
+  @@unique([kandidat_id, fingerprint_hash, ip_hash])
+  @@index([kandidat_id])
+  @@map("votat_kandidateve")
+}
+
+model ModerimKandidati {
+  id           Int              @id @default(autoincrement())
+  kandidat_id  Int
+  veprimi      VeprimiModerimit
+  arsyeja      String?          @db.Text
+  moderator_id Int
+  created_at   DateTime         @default(now())
+  kandidati    Kandidat         @relation(fields: [kandidat_id], references: [id], onDelete: Restrict)
+  moderatori   User             @relation(fields: [moderator_id], references: [id], onDelete: Restrict)
+
+  @@index([kandidat_id])
+  @@index([moderator_id])
+  @@map("moderimet_kandidateve")
+}
+
+model User {
+  id            Int                @id @default(autoincrement())
+  clerk_user_id String             @unique
+  emri_nofka    String
+  email         String             @unique
+  roli          RoliUserit
+  statusi       StatusiUserit      @default(aktiv)
+  created_at    DateTime           @default(now())
+  updated_at    DateTime           @updatedAt
+  deleted_at    DateTime?
+  moderimet     ModerimKandidati[]
+
+  @@index([statusi, deleted_at])
+  @@map("users")
+}
+
+model KufizimAntiSpamKandidati {
+  id               Int                   @id @default(autoincrement())
+  lloji_veprimit   LlojiVeprimitAntiSpam
+  ip_hash          String
+  fingerprint_hash String
+  created_at       DateTime              @default(now())
+
+  @@index([lloji_veprimit, ip_hash, created_at])
+  @@index([lloji_veprimit, fingerprint_hash, created_at])
+  @@map("kufizimet_anti_spam_kandidate")
+}
