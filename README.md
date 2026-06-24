@@ -166,6 +166,28 @@ Body:
 fingerprint-in e papërpunuar. Ruhet vetëm hash-i i tyre. Lejohen maksimumi tri
 propozime në 24 orë për të njëjtën IP ose pajisje.
 
+## Moderimi i kandidatëve
+
+Endpoint-et administrative:
+
+```text
+GET  /api/admin/kandidatet/ne-shqyrtim
+POST /api/admin/kandidatet/:id/aprovo
+POST /api/admin/kandidatet/:id/refuzo
+```
+
+Lejohen vetëm rolet `moderator` dhe `super_admin`. Refuzimi kërkon:
+
+```json
+{
+  "arsyeja": "Arsyeja e refuzimit."
+}
+```
+
+Një kandidat mund të aprovohet ose refuzohet vetëm kur është `ne_shqyrtim`.
+Ndryshimi i statusit dhe regjistrimi te `moderimet_kandidateve` kryhen në të
+njëjtin transaksion.
+
 ## Konfigurimi i ambientit
 
 Skedari `.env.example` përmban variablat e pritshme:
@@ -303,7 +325,7 @@ fillestar dhe seed-i i seksioneve janë implementuar. Ende nuk janë implementua
 - verifikimi Clerk;
 - verifikimi Turnstile;
 - endpoint-et e tjera publike dhe administrative;
-- logjika e votimit dhe moderimit;
+- logjika e votimit dhe veprimet e tjera administrative;
 - testet funksionale.
 
 Implementimi duhet të vazhdojë sipas prioriteteve te
