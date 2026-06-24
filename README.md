@@ -188,6 +188,30 @@ Një kandidat mund të aprovohet ose refuzohet vetëm kur është `ne_shqyrtim`.
 Ndryshimi i statusit dhe regjistrimi te `moderimet_kandidateve` kryhen në të
 njëjtin transaksion.
 
+## Mbështetja publike e kandidatit
+
+Endpoint-i:
+
+```text
+POST /api/publike/kandidatet/:id/mbeshtet
+```
+
+Kërkon header-in `x-device-fingerprint` dhe body:
+
+```json
+{
+  "captcha_token": "token-i i Turnstile"
+}
+```
+
+Vetëm kandidatët `i_aprovuar` ose `i_zgjedhur` mund të marrin mbështetje.
+Lejohet një votë për kandidat për të njëjtin kombinim pajisje/IP dhe maksimumi
+20 vota në një orë për pajisje ose IP.
+
+Përgjigjja përfshin `numri_votave` dhe `perqindja_votave` të përditësuara.
+Përqindja llogaritet mbi të gjitha votat e kandidatëve publikë në të njëjtin
+seksion.
+
 ## Konfigurimi i ambientit
 
 Skedari `.env.example` përmban variablat e pritshme:

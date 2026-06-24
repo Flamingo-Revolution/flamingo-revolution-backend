@@ -346,6 +346,11 @@ Fingerprint-i i papërpunuar përdoret vetëm gjatë kërkesës dhe nuk ruhet.
 
 `POST /api/publike/kandidatet/:id/mbeshtet`
 
+Hyrja:
+
+- header `x-device-fingerprint`;
+- `captcha_token`.
+
 Rrjedha:
 
 1. Kontrollo kandidatin dhe statusin e tij.

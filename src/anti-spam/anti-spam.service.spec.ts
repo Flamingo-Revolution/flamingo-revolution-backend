@@ -33,4 +33,20 @@ describe('AntiSpamService', () => {
       ),
     ).rejects.toBeInstanceOf(HttpException);
   });
+
+  it('refuzon votën e njëzetenjëtë brenda një ore', async () => {
+    const database = {
+      kufizimAntiSpamKandidati: {
+        count: jest.fn().mockResolvedValueOnce(0).mockResolvedValueOnce(20),
+      },
+    } as unknown as PrismaClient;
+
+    await expect(
+      service.ensureCandidateVoteAllowed(
+        database,
+        'fingerprint-hash',
+        'ip-hash',
+      ),
+    ).rejects.toBeInstanceOf(HttpException);
+  });
 });

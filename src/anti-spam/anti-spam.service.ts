@@ -61,4 +61,40 @@ export class AntiSpamService {
       );
     }
   }
+
+  async ensureCandidateVoteAllowed(
+    database: DatabaseClient,
+    fingerprintHash: string,
+    ipHash: string,
+  ): Promise<void> {
+    const since = new Date(Date.now() - 60 * 60 * 1000);
+    const baseWhere = {
+      lloji_veprimit: LlojiVeprimitAntiSpam.votim_kandidati,
+      created_at: {
+        gte: since,
+      },
+    };
+
+    const [fingerprintCount, ipCount] = await Promise.all([
+      database.kufizimAntiSpamKandidati.count({
+        where: {
+          ...baseWhere,
+          fingerprint_hash: fingerprintHash,
+        },
+      }),
+      database.kufizimAntiSpamKandidati.count({
+        where: {
+          ...baseWhere,
+          ip_hash: ipHash,
+        },
+      }),
+    ]);
+
+    if (fingerprintCount >= 20 || ipCount >= 20) {
+      throw new HttpException(
+        'Është arritur kufiri prej 20 votash në 1 orë.',
+        HttpStatus.TOO_MANY_REQUESTS,
+      );
+    }
+  }
 }
