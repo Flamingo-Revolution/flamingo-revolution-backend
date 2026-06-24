@@ -220,10 +220,9 @@ Veprimet e moderimit janë vetëm `aprovim`, `refuzim` dhe `zgjedhje`.
 
 ## Gjendja aktuale
 
-Skeleti kompilohet dhe kalon kontrollin e lint-it. Skema Prisma dhe seed-i i
-seksioneve janë implementuar. Ende nuk janë implementuar:
+Skeleti kompilohet dhe kalon kontrollin e lint-it. Skema Prisma, migrimi
+fillestar dhe seed-i i seksioneve janë implementuar. Ende nuk janë implementuar:
 
-- migrimet;
 - verifikimi Clerk;
 - verifikimi Turnstile;
 - endpoint-et;
